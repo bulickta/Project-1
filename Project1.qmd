@@ -7,4 +7,20 @@ editor: visual
 
 ## Quarto
 
+```{r}
+library(tidyverse)
+```
+
+```{r}
+data <- read_delim("https://www4.stat.ncsu.edu/~online/datasets/EDU01a.csv",delim=",")
+data |>
+  select(Area_name,STCOU,ends_with("D")) |>
+  rename(area_name = Area_name) |>
+  arrange(area_name) |> 
+  pivot_longer(cols = ends_with("D"), 
+               names_to = "varcode", 
+               values_to = "vals")
+
+```
+
 Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
