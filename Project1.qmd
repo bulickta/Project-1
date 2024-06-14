@@ -53,14 +53,14 @@ class(statedata) <- c("state", class(statedata))
 
 
 ```{r}
-function_for_step_1_2 <- function(result){
+function_for_step_1_2 <- function(result, value){
   longer_data <- result |>
     select(Area_name,STCOU,ends_with("D")) |>
     rename(area_name = Area_name) |>
     arrange(area_name) |> 
     pivot_longer(cols = ends_with("D"), 
                  names_to = "varcode", 
-                 values_to = "vals") 
+                 values_to = value) 
   return(longer_data)
 }
 function_for_step_3 <- function(longer_data){
@@ -98,10 +98,10 @@ function_for_steps4_5_6 <- function(create_date_columns){
 
 
 # wrapper function attempt - should produce same results as above -EN
-my_wrapper <- function(url, default_var_name = area_name){
+my_wrapper <- function(url, value = "enrollment"){
   # assume URL is in quotes
   result <- read_csv(url) |>
-    function_for_step_1_2() |>
+    function_for_step_1_2(value) |>
     function_for_step_3() |>
     function_for_steps4_5_6()
 }
@@ -112,6 +112,7 @@ stateData_Final <- result_tibbles[[2]]
 ```
 
 ```{r}
+# combine the rows from the 2 given CSV files into separate data frames (for county versus state) within the list "finalCombo"
 
 combine_datasets <- function(results1, results2){
   combined_county <- dplyr::bind_rows(as.data.frame(results1[[1]]),as.data.frame(results2[[1]]))
