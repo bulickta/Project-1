@@ -126,16 +126,39 @@ plot.state <- function(df,var_name="enrollment"){
   mean_data <- df |>
     filter(division != "ERROR") |>
     group_by(division,year) |>
-    summarize(var_avg <- mean(get(var_name)))
-  g <- ggplot(state_data,aes(x=year,y=avg,color=division))
+    summarize(var_avg = mean(get(var_name)))
+  g <- ggplot(mean_data,aes(x=year,y=var_avg,color=division))
   g+geom_line()
 }
+plot(finalCombo[[2]])
 
+###I think the assignment was saying to choose any state as a default so I put NC, but let me know If I misunderstood! - TB ###
+plot.county <- function(df,var_name="enrollment",state_choice="NC",top_bottom="top",n_given=5){
+  mean_data <- df |>
+    filter(state == state_choice) |>
+    group_by(area_name) |>
+    summarize(var_avg = mean(get(var_name))) 
+  ###couldn't figure out the ifelse() or if_else() syntax so i used a more traditional if syntax
+    if(tolower(top_bottom)=="top"){
+      mean_data <- mean_data |> arrange(desc(var_avg))
+    }else if(tolower(top_bottom)=="bottom"){
+      mean_data <- mean_data |> arrange(var_avg)
+    }else{
+      return("ERROR, please specify 'top' or 'bottom'")
+    }
+  mean_data <- mean_data |> slice(1:n_given)
+  plot_data <- left_join(mean_data,df)
+  ###Prompt seemed a little unclear, but I think for the county data we are supposed to be plotting the actual data values for enrollment per year, with different lines for the top/bottom n specified counties? That should be completed here. - TB
+  g <- ggplot(plot_data,aes(x=year,y=get(var_name),color=area_name))
+  g+geom_line()
+}
+plot.county(finalCombo[[1]])
 
-
-
-
-
+  
+  
+  
+  
+  
 ```
 
 
