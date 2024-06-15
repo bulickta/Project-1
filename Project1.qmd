@@ -49,9 +49,6 @@ statedata <- data_clean |>
 class(statedata) <- c("state", class(statedata))
 ```
 
-
-
-
 ```{r}
 function_for_step_1_2 <- function(result, value){
   longer_data <- result |>
@@ -81,6 +78,8 @@ function_for_steps4_5_6 <- function(create_date_columns){
 
   statedata <- create_date_columns |>
     slice(grep(pattern = ", \\w\\w", area_name,invert=TRUE)) |>
+    ###Filtering out duplicate DC values###
+    filter(area_name != "District of Columbia") |>
     mutate(division = ifelse(area_name %in% c("CONNECTICUT", "MAINE", "MASSACHUSETTS", "NEW HAMPSHIRE", "RHODE ISLAND", "VERMONT"),"1",
                       ifelse(area_name %in% c("NEW JERSEY","NEW YORK","PENNSYLVANIA"),"2",
                       ifelse(area_name %in% c("ILLINOIS","INDIANA","MICHIGAN","OHIO","WISCONSIN"),"3",
@@ -94,8 +93,6 @@ function_for_steps4_5_6 <- function(create_date_columns){
   class(statedata) <- c("state", class(statedata))
   return(list(countydata, statedata))
 }
-
-
 
 # wrapper function attempt - should produce same results as above -EN
 my_wrapper <- function(url, value = "enrollment"){
@@ -115,11 +112,42 @@ stateData_Final <- result_tibbles[[2]]
 # combine the rows from the 2 given CSV files into separate data frames (for county versus state) within the list "finalCombo"
 
 combine_datasets <- function(results1, results2){
-  combined_county <- dplyr::bind_rows(as.data.frame(results1[[1]]),as.data.frame(results2[[1]]))
-  combined_state <- dplyr::bind_rows(as.data.frame(results1[[2]]),as.data.frame(results2[[2]]))
+  ###Removed the "as.data.frame()" parts as I don't think we need them (?) and then they remove the state/county classes when transforming the data that way - TB
+  combined_county <- dplyr::bind_rows(results1[[1]],results2[[1]])
+  combined_state <- dplyr::bind_rows(results1[[2]],results2[[2]])
   return(list(countyData = combined_county, stateData = combined_state))
 }
 finalCombo <- combine_datasets(results1 = my_wrapper("https://www4.stat.ncsu.edu/~online/datasets/EDU01a.csv"), results2 = my_wrapper("https://www4.stat.ncsu.edu/~online/datasets/EDU01b.csv"))
+class(finalCombo[[2]])
+```
+
+```{r}
+plot.state <- function(df,var_name="enrollment"){
+  mean_data <- df |>
+    filter(division != "ERROR") |>
+    group_by(division,year) |>
+    summarize(var_avg <- mean(get(var_name)))
+  g <- ggplot(state_data,aes(x=year,y=avg,color=division))
+  g+geom_line()
+}
+
+
+
+
+
 
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
 
