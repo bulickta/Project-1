@@ -133,7 +133,7 @@ plot.state <- function(df,var_name="enrollment"){
 plot(finalCombo[[2]])
 
 ###I think the assignment was saying to choose any state as a default so I put NC, but let me know If I misunderstood! - TB ###
-plot.county <- function(df,var_name="enrollment",state_choice="NC",top_bottom="top",n_given=5){
+plot.county <- function(df,state_choice="NC",top_bottom="top",n_given=5,var_name="enrollment"){
   mean_data <- df |>
     filter(state == state_choice) |>
     group_by(area_name) |>
