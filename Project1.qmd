@@ -7,7 +7,10 @@ editor: visual
 
 ## Title
 
-```{r}
+```{r setup, include=FALSE} 
+
+# I suppressed warnings and messages because they were happening for reading in CSV's even when nothing was wrong -EN
+knitr::opts_chunk$set(warning = FALSE, message = FALSE) 
 library(tidyverse)
 ```
 
@@ -130,38 +133,68 @@ plot.state <- function(df,var_name="enrollment"){
   g <- ggplot(mean_data,aes(x=year,y=var_avg,color=division))
   g+geom_line()
 }
-plot(finalCombo[[2]])
+plot.state(finalCombo[[2]])
 
 ###I think the assignment was saying to choose any state as a default so I put NC, but let me know If I misunderstood! - TB ###
+
+### ^agreed! - EN ###
+
 plot.county <- function(df,state_choice="NC",top_bottom="top",n_given=5,var_name="enrollment"){
   mean_data <- df |>
     filter(state == state_choice) |>
     group_by(area_name) |>
     summarize(var_avg = mean(get(var_name))) 
   ###couldn't figure out the ifelse() or if_else() syntax so i used a more traditional if syntax
-    if(tolower(top_bottom)=="top"){
-      mean_data <- mean_data |> arrange(desc(var_avg))
-    }else if(tolower(top_bottom)=="bottom"){
-      mean_data <- mean_data |> arrange(var_avg)
-    }else{
-      return("ERROR, please specify 'top' or 'bottom'")
-    }
+  
+  ### i was able to get ifelse() below - EN
+  
+    ifelse(tolower(top_bottom)=="top", mean_data <- mean_data |> arrange(desc(var_avg)),
+           ifelse(tolower(top_bottom)=="bottom",
+              mean_data <- mean_data |>
+              arrange(var_avg),
+            return("ERROR, please specify 'top' or 'bottom'")))
+    
   mean_data <- mean_data |> slice(1:n_given)
-  plot_data <- left_join(mean_data,df)
+  plot_data <- left_join(mean_data,df, by = "area_name")
   ###Prompt seemed a little unclear, but I think for the county data we are supposed to be plotting the actual data values for enrollment per year, with different lines for the top/bottom n specified counties? That should be completed here. - TB
   g <- ggplot(plot_data,aes(x=year,y=get(var_name),color=area_name))
   g+geom_line()
 }
 plot.county(finalCombo[[1]])
-
-  
-  
-  
-  
-  
 ```
 
 
+# Put it Together
+
+```{r}
+plot.state(finalCombo[[2]])
+
+plot.county(finalCombo[[1]],state_choice="NC",top_bottom="top",n_given=20)
+plot.county(finalCombo[[1]],state_choice="SC",top_bottom="bottom",n_given=7)
+plot.county(finalCombo[[1]])
+plot.county(finalCombo[[1]],state_choice="PA",top_bottom="top",n_given=8)
+
+# I believe the default var name for these 4 is also 'enrollment', but not 100% sure -EN
+
+first_new_URL <- my_wrapper(url="https://www4.stat.ncsu.edu/~online/datasets/PST01a.csv")
+second_new_URL <- my_wrapper(url="https://www4.stat.ncsu.edu/~online/datasets/PST01b.csv")
+third_new_URL <- my_wrapper(url="https://www4.stat.ncsu.edu/~online/datasets/PST01c.csv")
+fourth_new_URL <- my_wrapper(url="https://www4.stat.ncsu.edu/~online/datasets/PST01d.csv")
+
+
+combine1 <- combine_datasets(results1 = first_new_URL, results2 = second_new_URL)
+
+combine2 <- combine_datasets(results1 = combine1, results2 = third_new_URL)
+
+combine3 <- combine_datasets(results1 = combine2, results2 = fourth_new_URL)
+
+plot.state(combine3[[2]])
+plot.county(combine3[[1]], "CA", "top", 15)
+plot.county(combine3[[1]], "TX", "top", 4)
+plot.county(combine3[[1]])
+plot.county(combine3[[1]], "NY", "top", 10)
+
+```
 
 
 
