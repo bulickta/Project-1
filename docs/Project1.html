@@ -142,8 +142,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="data-processing" class="level2">
 <h2 class="anchored" data-anchor-id="data-processing">Data Processing</h2>
-<section id="non-function-processing" class="level3">
-<h3 class="anchored" data-anchor-id="non-function-processing">Non-Function processing</h3>
+<section id="non-function-processing" class="level4">
+<h4 class="anchored" data-anchor-id="non-function-processing">Non-Function processing</h4>
 <p>To figure out the steps to processing data, we process the first input outside a function to ensure it is working correctly. Generally speaking, we read in the CSV file, selected the specified columns, pivoted to a longer form, and extracted the relevent value for year from the variable codes.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>data_raw <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"https://www4.stat.ncsu.edu/~online/datasets/EDU01a.csv"</span>)</span>
@@ -213,8 +213,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </section>
-<section id="function-processing" class="level3">
-<h3 class="anchored" data-anchor-id="function-processing">Function Processing</h3>
+<section id="function-processing" class="level4">
+<h4 class="anchored" data-anchor-id="function-processing">Function Processing</h4>
 <p>Now that we know the basic steps, we convert the process into 3 functions below for ease of reproducability across multiple input data files.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>function_for_step_1_2 <span class="ot">&lt;-</span> <span class="cf">function</span>(result, value){</span>
@@ -317,8 +317,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="put-it-together" class="level1">
-<h1>Put it Together</h1>
+<section id="put-it-together" class="level2">
+<h2 class="anchored" data-anchor-id="put-it-together">Put it Together</h2>
 <p>Now that we have developed all of our functions, we can make sure they work correctly and run them in the same location. First, we run the functions to process and create a final combined dataset out for the EDU01a and EDU01b CSV files.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>finalCombo <span class="ot">&lt;-</span> <span class="fu">combine_datasets</span>(<span class="at">results1 =</span> <span class="fu">my_wrapper</span>(<span class="st">"https://www4.stat.ncsu.edu/~online/datasets/EDU01a.csv"</span>), <span class="at">results2 =</span> <span class="fu">my_wrapper</span>(<span class="st">"https://www4.stat.ncsu.edu/~online/datasets/EDU01b.csv"</span>))</span>

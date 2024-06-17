@@ -13,7 +13,7 @@ knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 library(tidyverse)
 ```
 
-### Non-Function processing
+#### Non-Function processing
 
 To figure out the steps to processing data, we process the first input outside a function to ensure it is working correctly. Generally speaking, we read in the CSV file, selected the specified columns, pivoted to a longer form, and extracted the relevent value for year from the variable codes.
 ```{r}
@@ -54,7 +54,7 @@ countydata
 statedata
 ```
 
-### Function Processing
+#### Function Processing
 
 Now that we know the basic steps, we convert the process into 3 functions below for ease of reproducability across multiple input data files.
 ```{r}
@@ -160,7 +160,7 @@ plot.county <- function(df,state_choice="NC",top_bottom="top",n_given=5,var_name
 }
 ```
 
-# Put it Together
+## Put it Together
 
 Now that we have developed all of our functions, we can make sure they work correctly and run them in the same location. First, we run the functions to process and create a final combined dataset out for the EDU01a and EDU01b CSV files.
 ```{r}
