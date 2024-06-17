@@ -1,6 +1,6 @@
 ---
 title: "ST 558 Project 1"
-authors: "Thomas Bulick and Eliza Norman"
+author: "Thomas Bulick and Eliza Norman"
 format: html
 editor: visual
 ---
