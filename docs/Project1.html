@@ -261,7 +261,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">list</span>(countydata, statedata))</span>
 <span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>We then create a wrapper function to automate the process, so we can now simply add a CSV file name/path, and optionally a specific value we would like if enrollment is no longer the measure of interest, to the function my_wrapper().</p>
+<p>We then create a wrapper function to automate the process, so we can now simply add a CSV file name/path, and optionally a specific value we would like if enrollment is no longer the measure of interest, to the function my_wrapper(). Checking this output data to the data above, we can see our wrapper has reproduced the same data processing steps.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>my_wrapper <span class="ot">&lt;-</span> <span class="cf">function</span>(url, <span class="at">value =</span> <span class="st">"enrollment"</span>){</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># assume URL is in quotes</span></span>
@@ -273,15 +273,49 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>result_tibbles <span class="ot">&lt;-</span> <span class="fu">my_wrapper</span>(<span class="at">url=</span><span class="st">"https://www4.stat.ncsu.edu/~online/datasets/EDU01a.csv"</span>)</span>
 <span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>countyData_Final <span class="ot">&lt;-</span> result_tibbles[[<span class="dv">1</span>]]</span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>stateData_Final <span class="ot">&lt;-</span> result_tibbles[[<span class="dv">2</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>stateData_Final <span class="ot">&lt;-</span> result_tibbles[[<span class="dv">2</span>]]</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>countyData_Final</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 31,450 × 7
+   area_name     STCOU varcode    enrollment  year measure state
+   &lt;chr&gt;         &lt;chr&gt; &lt;chr&gt;           &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;
+ 1 Abbeville, SC 45001 EDU010187D       3941  1987 EDU0101 SC   
+ 2 Abbeville, SC 45001 EDU010188D       3934  1988 EDU0101 SC   
+ 3 Abbeville, SC 45001 EDU010189D       3880  1989 EDU0101 SC   
+ 4 Abbeville, SC 45001 EDU010190D       3834  1990 EDU0101 SC   
+ 5 Abbeville, SC 45001 EDU010191D       3806  1991 EDU0101 SC   
+ 6 Abbeville, SC 45001 EDU010192D       3780  1992 EDU0101 SC   
+ 7 Abbeville, SC 45001 EDU010193D       3804  1993 EDU0101 SC   
+ 8 Abbeville, SC 45001 EDU010194D       3750  1994 EDU0101 SC   
+ 9 Abbeville, SC 45001 EDU010195D       3780  1995 EDU0101 SC   
+10 Abbeville, SC 45001 EDU010196D       3803  1996 EDU0101 SC   
+# ℹ 31,440 more rows</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>stateData_Final</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 520 × 7
+   area_name STCOU varcode    enrollment  year measure division
+   &lt;chr&gt;     &lt;chr&gt; &lt;chr&gt;           &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;   
+ 1 ALABAMA   01000 EDU010187D     733735  1987 EDU0101 6       
+ 2 ALABAMA   01000 EDU010188D     728234  1988 EDU0101 6       
+ 3 ALABAMA   01000 EDU010189D     730048  1989 EDU0101 6       
+ 4 ALABAMA   01000 EDU010190D     728252  1990 EDU0101 6       
+ 5 ALABAMA   01000 EDU010191D     725541  1991 EDU0101 6       
+ 6 ALABAMA   01000 EDU010192D     726150  1992 EDU0101 6       
+ 7 ALABAMA   01000 EDU010193D     728014  1993 EDU0101 6       
+ 8 ALABAMA   01000 EDU010194D     730509  1994 EDU0101 6       
+ 9 ALABAMA   01000 EDU010195D     727989  1995 EDU0101 6       
+10 ALABAMA   01000 EDU010196D     736825  1996 EDU0101 6       
+# ℹ 510 more rows</code></pre>
+</div>
 </div>
 <p>We additionally create a function to combine the processing results from multiple CSV files into one larger tibble.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>combine_datasets <span class="ot">&lt;-</span> <span class="cf">function</span>(results1, results2){</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  combined_county <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">bind_rows</span>(results1[[<span class="dv">1</span>]],results2[[<span class="dv">1</span>]])</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  combined_state <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">bind_rows</span>(results1[[<span class="dv">2</span>]],results2[[<span class="dv">2</span>]])</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">list</span>(<span class="at">countyData =</span> combined_county, <span class="at">stateData =</span> combined_state))</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>combine_datasets <span class="ot">&lt;-</span> <span class="cf">function</span>(results1, results2){</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  combined_county <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">bind_rows</span>(results1[[<span class="dv">1</span>]],results2[[<span class="dv">1</span>]])</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  combined_state <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">bind_rows</span>(results1[[<span class="dv">2</span>]],results2[[<span class="dv">2</span>]])</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">list</span>(<span class="at">countyData =</span> combined_county, <span class="at">stateData =</span> combined_state))</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 </section>
@@ -289,40 +323,38 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="data-summarization">Data Summarization</h2>
 <p>We then turn our attention to a method for automatically summarizing the datasets created from our previous functions, specifically plotting the state-level data as a line chart for average enrollment by year, with different lines for each division, and the county-level data as a line chart for simple enrollment by year across counties, specifying a particular state and considering either the top n number of counties or the bottom n number of counties, where ordering is according to average enrollment across the entire time period.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>plot.state <span class="ot">&lt;-</span> <span class="cf">function</span>(df,<span class="at">var_name=</span><span class="st">"enrollment"</span>){</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  mean_data <span class="ot">&lt;-</span> df <span class="sc">|&gt;</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(division <span class="sc">!=</span> <span class="st">"ERROR"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(division,year) <span class="sc">|&gt;</span></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarize</span>(<span class="at">var_avg =</span> <span class="fu">mean</span>(<span class="fu">get</span>(var_name)))</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  g <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(mean_data,<span class="fu">aes</span>(<span class="at">x=</span>year,<span class="at">y=</span>var_avg,<span class="at">color=</span>division))</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  g<span class="sc">+</span><span class="fu">geom_line</span>()<span class="sc">+</span><span class="fu">labs</span>(<span class="at">y=</span><span class="fu">paste</span>(<span class="st">"average"</span>,var_name))</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>plot.county <span class="ot">&lt;-</span> <span class="cf">function</span>(df,<span class="at">state_choice=</span><span class="st">"NC"</span>,<span class="at">top_bottom=</span><span class="st">"top"</span>,<span class="at">n_given=</span><span class="dv">5</span>,<span class="at">var_name=</span><span class="st">"enrollment"</span>){</span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  mean_data <span class="ot">&lt;-</span> df <span class="sc">|&gt;</span></span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(state <span class="sc">==</span> state_choice) <span class="sc">|&gt;</span></span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(area_name) <span class="sc">|&gt;</span></span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarize</span>(<span class="at">var_avg =</span> <span class="fu">mean</span>(<span class="fu">get</span>(var_name))) </span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ifelse</span>(<span class="fu">tolower</span>(top_bottom)<span class="sc">==</span><span class="st">"top"</span>, mean_data <span class="ot">&lt;-</span> mean_data <span class="sc">|&gt;</span> <span class="fu">arrange</span>(<span class="fu">desc</span>(var_avg)),</span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>           <span class="fu">ifelse</span>(<span class="fu">tolower</span>(top_bottom)<span class="sc">==</span><span class="st">"bottom"</span>,</span>
-<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>              mean_data <span class="ot">&lt;-</span> mean_data <span class="sc">|&gt;</span></span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>              <span class="fu">arrange</span>(var_avg),</span>
-<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>            <span class="fu">return</span>(<span class="st">"ERROR, please specify 'top' or 'bottom'"</span>)))</span>
-<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>  mean_data <span class="ot">&lt;-</span> mean_data <span class="sc">|&gt;</span> <span class="fu">slice</span>(<span class="dv">1</span><span class="sc">:</span>n_given)</span>
-<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>  plot_data <span class="ot">&lt;-</span> <span class="fu">left_join</span>(mean_data,df, <span class="at">by =</span> <span class="st">"area_name"</span>)</span>
-<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>  <span class="do">###Prompt seemed a little unclear, but I think for the county data we are supposed to be plotting the actual data values for enrollment per year, with different lines for the top/bottom n specified counties? That should be completed here. - TB</span></span>
-<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>  g <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(plot_data,<span class="fu">aes</span>(<span class="at">x=</span>year,<span class="at">y=</span><span class="fu">get</span>(var_name),<span class="at">color=</span>area_name))</span>
-<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>  g<span class="sc">+</span><span class="fu">geom_line</span>()<span class="sc">+</span><span class="fu">labs</span>(<span class="at">y=</span>var_name)</span>
-<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>plot.state <span class="ot">&lt;-</span> <span class="cf">function</span>(df,<span class="at">var_name=</span><span class="st">"enrollment"</span>){</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  mean_data <span class="ot">&lt;-</span> df <span class="sc">|&gt;</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(division <span class="sc">!=</span> <span class="st">"ERROR"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(division,year) <span class="sc">|&gt;</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarize</span>(<span class="at">var_avg =</span> <span class="fu">mean</span>(<span class="fu">get</span>(var_name)))</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  g <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(mean_data,<span class="fu">aes</span>(<span class="at">x=</span>year,<span class="at">y=</span>var_avg,<span class="at">color=</span>division))</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  g<span class="sc">+</span><span class="fu">geom_line</span>()<span class="sc">+</span><span class="fu">labs</span>(<span class="at">y=</span><span class="fu">paste</span>(<span class="st">"average"</span>,var_name),<span class="at">title=</span><span class="fu">paste</span>(<span class="st">"average"</span>,var_name,<span class="st">"by year and by division"</span>))<span class="sc">+</span><span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust=</span><span class="fl">0.5</span>))<span class="sc">+</span><span class="fu">scale_y_continuous</span>(<span class="at">labels=</span>comma)</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>plot.county <span class="ot">&lt;-</span> <span class="cf">function</span>(df,<span class="at">state_choice=</span><span class="st">"NC"</span>,<span class="at">top_bottom=</span><span class="st">"top"</span>,<span class="at">n_given=</span><span class="dv">5</span>,<span class="at">var_name=</span><span class="st">"enrollment"</span>){</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  mean_data <span class="ot">&lt;-</span> df <span class="sc">|&gt;</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(state <span class="sc">==</span> state_choice) <span class="sc">|&gt;</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(area_name) <span class="sc">|&gt;</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarize</span>(<span class="at">var_avg =</span> <span class="fu">mean</span>(<span class="fu">get</span>(var_name))) </span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ifelse</span>(<span class="fu">tolower</span>(top_bottom)<span class="sc">==</span><span class="st">"top"</span>, mean_data <span class="ot">&lt;-</span> mean_data <span class="sc">|&gt;</span> <span class="fu">arrange</span>(<span class="fu">desc</span>(var_avg)),</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>           <span class="fu">ifelse</span>(<span class="fu">tolower</span>(top_bottom)<span class="sc">==</span><span class="st">"bottom"</span>,</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>              mean_data <span class="ot">&lt;-</span> mean_data <span class="sc">|&gt;</span></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>              <span class="fu">arrange</span>(var_avg),</span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>            <span class="fu">return</span>(<span class="st">"ERROR, please specify 'top' or 'bottom'"</span>)))</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>  mean_data <span class="ot">&lt;-</span> mean_data <span class="sc">|&gt;</span> <span class="fu">slice</span>(<span class="dv">1</span><span class="sc">:</span>n_given)</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>  plot_data <span class="ot">&lt;-</span> <span class="fu">left_join</span>(mean_data,df, <span class="at">by =</span> <span class="st">"area_name"</span>)</span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>  g <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(plot_data,<span class="fu">aes</span>(<span class="at">x=</span>year,<span class="at">y=</span><span class="fu">get</span>(var_name),<span class="at">color=</span><span class="fu">fct_inorder</span>(area_name)))</span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>  g<span class="sc">+</span><span class="fu">geom_line</span>()<span class="sc">+</span><span class="fu">labs</span>(<span class="at">y=</span>var_name,<span class="at">color=</span><span class="st">"area_name"</span>,<span class="at">title=</span><span class="fu">paste</span>(var_name,<span class="st">"for the"</span>,top_bottom,n_given,<span class="st">"counties in"</span>,state_choice))<span class="sc">+</span><span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust=</span><span class="fl">0.5</span>),<span class="at">legend.key.height=</span><span class="fu">unit</span>((<span class="dv">5</span><span class="sc">/</span>n_given),<span class="st">'cm'</span>))<span class="sc">+</span><span class="fu">scale_y_continuous</span>(<span class="at">labels=</span>comma)</span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="put-it-together" class="level2">
 <h2 class="anchored" data-anchor-id="put-it-together">Put it Together</h2>
 <p>Now that we have developed all of our functions, we can make sure they work correctly and run them in the same location. First, we run the functions to process and create a final combined dataset out for the EDU01a and EDU01b CSV files.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>finalCombo <span class="ot">&lt;-</span> <span class="fu">combine_datasets</span>(<span class="at">results1 =</span> <span class="fu">my_wrapper</span>(<span class="st">"https://www4.stat.ncsu.edu/~online/datasets/EDU01a.csv"</span>), <span class="at">results2 =</span> <span class="fu">my_wrapper</span>(<span class="st">"https://www4.stat.ncsu.edu/~online/datasets/EDU01b.csv"</span>))</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>finalCombo</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>finalCombo <span class="ot">&lt;-</span> <span class="fu">combine_datasets</span>(<span class="at">results1 =</span> <span class="fu">my_wrapper</span>(<span class="st">"https://www4.stat.ncsu.edu/~online/datasets/EDU01a.csv"</span>), <span class="at">results2 =</span> <span class="fu">my_wrapper</span>(<span class="st">"https://www4.stat.ncsu.edu/~online/datasets/EDU01b.csv"</span>))</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>finalCombo</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>$countyData
 # A tibble: 62,900 × 7
@@ -359,7 +391,7 @@ $stateData
 </div>
 <p>Next we create our desired visualizations, plotting the state-level data, and including a few separate plots for the county-level data: one for the top 20 counties in NC, one for the bottom counties in SC, one using only defaults, and one with the top 8 counties in PA.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(finalCombo[[<span class="dv">2</span>]])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(finalCombo[[<span class="dv">2</span>]])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -367,7 +399,7 @@ $stateData
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(finalCombo[[<span class="dv">1</span>]],<span class="at">state_choice=</span><span class="st">"NC"</span>,<span class="at">top_bottom=</span><span class="st">"top"</span>,<span class="at">n_given=</span><span class="dv">20</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(finalCombo[[<span class="dv">1</span>]],<span class="at">state_choice=</span><span class="st">"NC"</span>,<span class="at">top_bottom=</span><span class="st">"top"</span>,<span class="at">n_given=</span><span class="dv">20</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -375,7 +407,7 @@ $stateData
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(finalCombo[[<span class="dv">1</span>]],<span class="at">state_choice=</span><span class="st">"SC"</span>,<span class="at">top_bottom=</span><span class="st">"bottom"</span>,<span class="at">n_given=</span><span class="dv">7</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(finalCombo[[<span class="dv">1</span>]],<span class="at">state_choice=</span><span class="st">"SC"</span>,<span class="at">top_bottom=</span><span class="st">"bottom"</span>,<span class="at">n_given=</span><span class="dv">7</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -383,7 +415,7 @@ $stateData
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(finalCombo[[<span class="dv">1</span>]])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(finalCombo[[<span class="dv">1</span>]])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -391,7 +423,7 @@ $stateData
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(finalCombo[[<span class="dv">1</span>]],<span class="at">state_choice=</span><span class="st">"PA"</span>,<span class="at">top_bottom=</span><span class="st">"top"</span>,<span class="at">n_given=</span><span class="dv">8</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(finalCombo[[<span class="dv">1</span>]],<span class="at">state_choice=</span><span class="st">"PA"</span>,<span class="at">top_bottom=</span><span class="st">"top"</span>,<span class="at">n_given=</span><span class="dv">8</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -402,18 +434,18 @@ $stateData
 </div>
 <p>Lastly, we repeat this process for four additional datasets, processsing each, combining them together, plotting the state data, plotting the top 15 counties in CA, the top 4 counties in TX, plotting county data only using defaults, and plotting the top 10 counties in NY.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>first_new_URL <span class="ot">&lt;-</span> <span class="fu">my_wrapper</span>(<span class="at">url=</span><span class="st">"https://www4.stat.ncsu.edu/~online/datasets/PST01a.csv"</span>)</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>second_new_URL <span class="ot">&lt;-</span> <span class="fu">my_wrapper</span>(<span class="at">url=</span><span class="st">"https://www4.stat.ncsu.edu/~online/datasets/PST01b.csv"</span>)</span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>third_new_URL <span class="ot">&lt;-</span> <span class="fu">my_wrapper</span>(<span class="at">url=</span><span class="st">"https://www4.stat.ncsu.edu/~online/datasets/PST01c.csv"</span>)</span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>fourth_new_URL <span class="ot">&lt;-</span> <span class="fu">my_wrapper</span>(<span class="at">url=</span><span class="st">"https://www4.stat.ncsu.edu/~online/datasets/PST01d.csv"</span>)</span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>combine1 <span class="ot">&lt;-</span> <span class="fu">combine_datasets</span>(<span class="at">results1 =</span> first_new_URL, <span class="at">results2 =</span> second_new_URL)</span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>combine2 <span class="ot">&lt;-</span> <span class="fu">combine_datasets</span>(<span class="at">results1 =</span> combine1, <span class="at">results2 =</span> third_new_URL)</span>
-<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>combine3 <span class="ot">&lt;-</span> <span class="fu">combine_datasets</span>(<span class="at">results1 =</span> combine2, <span class="at">results2 =</span> fourth_new_URL)</span>
-<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>combine3</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>first_new_URL <span class="ot">&lt;-</span> <span class="fu">my_wrapper</span>(<span class="at">url=</span><span class="st">"https://www4.stat.ncsu.edu/~online/datasets/PST01a.csv"</span>)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>second_new_URL <span class="ot">&lt;-</span> <span class="fu">my_wrapper</span>(<span class="at">url=</span><span class="st">"https://www4.stat.ncsu.edu/~online/datasets/PST01b.csv"</span>)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>third_new_URL <span class="ot">&lt;-</span> <span class="fu">my_wrapper</span>(<span class="at">url=</span><span class="st">"https://www4.stat.ncsu.edu/~online/datasets/PST01c.csv"</span>)</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>fourth_new_URL <span class="ot">&lt;-</span> <span class="fu">my_wrapper</span>(<span class="at">url=</span><span class="st">"https://www4.stat.ncsu.edu/~online/datasets/PST01d.csv"</span>)</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>combine1 <span class="ot">&lt;-</span> <span class="fu">combine_datasets</span>(<span class="at">results1 =</span> first_new_URL, <span class="at">results2 =</span> second_new_URL)</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>combine2 <span class="ot">&lt;-</span> <span class="fu">combine_datasets</span>(<span class="at">results1 =</span> combine1, <span class="at">results2 =</span> third_new_URL)</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>combine3 <span class="ot">&lt;-</span> <span class="fu">combine_datasets</span>(<span class="at">results1 =</span> combine2, <span class="at">results2 =</span> fourth_new_URL)</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>combine3</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>$countyData
 # A tibble: 125,800 × 7
@@ -447,7 +479,7 @@ $stateData
 10 ALABAMA   01000 PST025181D    3918526  1981 PST0251 6       
 # ℹ 2,070 more rows</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(combine3[[<span class="dv">2</span>]])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(combine3[[<span class="dv">2</span>]])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -455,7 +487,7 @@ $stateData
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(combine3[[<span class="dv">1</span>]], <span class="st">"CA"</span>, <span class="st">"top"</span>, <span class="dv">15</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(combine3[[<span class="dv">1</span>]], <span class="st">"CA"</span>, <span class="st">"top"</span>, <span class="dv">15</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -463,7 +495,7 @@ $stateData
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(combine3[[<span class="dv">1</span>]], <span class="st">"TX"</span>, <span class="st">"top"</span>, <span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(combine3[[<span class="dv">1</span>]], <span class="st">"TX"</span>, <span class="st">"top"</span>, <span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -471,7 +503,7 @@ $stateData
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(combine3[[<span class="dv">1</span>]])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(combine3[[<span class="dv">1</span>]])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -479,7 +511,7 @@ $stateData
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(combine3[[<span class="dv">1</span>]], <span class="st">"NY"</span>, <span class="st">"top"</span>, <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(combine3[[<span class="dv">1</span>]], <span class="st">"NY"</span>, <span class="st">"top"</span>, <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">

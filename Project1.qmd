@@ -10,7 +10,11 @@ editor: visual
 ```{r setup, include=FALSE}
 #Suppressed warnings and messages because we had an issue where they were happening for reading in CSV's even when nothing was wrong
 knitr::opts_chunk$set(warning = FALSE, message = FALSE) 
-library(tidyverse)
+#Options statement and scales statement combined help the charts being output to have neater axis value labeling since the scientific notation looked rough
+options(scipen = 999)
+#Neater way of checking for, installing, and loading packages using require
+if (!require("scales")) install.packages("scales")
+if (!require("tidyverse")) install.packages("tidyverse")
 ```
 
 #### Non-Function processing
@@ -103,9 +107,8 @@ function_for_steps4_5_6 <- function(create_date_columns){
 }
 ```
 
-We then create a wrapper function to automate the process, so we can now simply add a CSV file name/path, and optionally a specific value we would like if enrollment is no longer the measure of interest, to the function my_wrapper().
+We then create a wrapper function to automate the process, so we can now simply add a CSV file name/path, and optionally a specific value we would like if enrollment is no longer the measure of interest, to the function my_wrapper(). Checking this output data to the data above, we can see our wrapper has reproduced the same data processing steps.
 ```{r}
-
 my_wrapper <- function(url, value = "enrollment"){
   # assume URL is in quotes
   result <- read_csv(url) |>
@@ -117,6 +120,8 @@ result_tibbles <- my_wrapper(url="https://www4.stat.ncsu.edu/~online/datasets/ED
 
 countyData_Final <- result_tibbles[[1]]
 stateData_Final <- result_tibbles[[2]]
+countyData_Final
+stateData_Final
 ```
 
 We additionally create a function to combine the processing results from multiple CSV files into one larger tibble.
@@ -138,7 +143,7 @@ plot.state <- function(df,var_name="enrollment"){
     group_by(division,year) |>
     summarize(var_avg = mean(get(var_name)))
   g <- ggplot(mean_data,aes(x=year,y=var_avg,color=division))
-  g+geom_line()+labs(y=paste("average",var_name))
+  g+geom_line()+labs(y=paste("average",var_name),title=paste("average",var_name,"by year and by division"))+theme(plot.title = element_text(hjust=0.5))+scale_y_continuous(labels=comma)
 }
 
 plot.county <- function(df,state_choice="NC",top_bottom="top",n_given=5,var_name="enrollment"){
@@ -151,12 +156,10 @@ plot.county <- function(df,state_choice="NC",top_bottom="top",n_given=5,var_name
               mean_data <- mean_data |>
               arrange(var_avg),
             return("ERROR, please specify 'top' or 'bottom'")))
-    
   mean_data <- mean_data |> slice(1:n_given)
   plot_data <- left_join(mean_data,df, by = "area_name")
-  ###Prompt seemed a little unclear, but I think for the county data we are supposed to be plotting the actual data values for enrollment per year, with different lines for the top/bottom n specified counties? That should be completed here. - TB
-  g <- ggplot(plot_data,aes(x=year,y=get(var_name),color=area_name))
-  g+geom_line()+labs(y=var_name)
+  g <- ggplot(plot_data,aes(x=year,y=get(var_name),color=fct_inorder(area_name)))
+  g+geom_line()+labs(y=var_name,color="area_name",title=paste(var_name,"for the",top_bottom,n_given,"counties in",state_choice))+theme(plot.title = element_text(hjust=0.5),legend.key.height=unit((5/n_given),'cm'))+scale_y_continuous(labels=comma)
 }
 ```
 
