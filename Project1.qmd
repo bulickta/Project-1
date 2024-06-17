@@ -1,23 +1,22 @@
 ---
 title: "ST 558 Project 1"
-author: "Thomas Bulick and Eliza Norman"
+authors: "Thomas Bulick and Eliza Norman"
 format: html
 editor: visual
 ---
 
-## Title
+## Data Processing
 
-```{r setup, include=FALSE} 
-
-# I suppressed warnings and messages because they were happening for reading in CSV's even when nothing was wrong -EN
+```{r setup, include=FALSE}
+#Suppressed warnings and messages because we had an issue where they were happening for reading in CSV's even when nothing was wrong
 knitr::opts_chunk$set(warning = FALSE, message = FALSE) 
 library(tidyverse)
 ```
 
-Code for one full dataset should be here, just need to move it into a function now.
+### Non-Function processing
 
+To figure out the steps to processing data, we process the first input outside a function to ensure it is working correctly. Generally speaking, we read in the CSV file, selected the specified columns, pivoted to a longer form, and extracted the relevent value for year from the variable codes.
 ```{r}
-# I replaced read_delim with read_csv because I think this is the preferred method. didn't see any changes, let me know if you see something is messed up  -EN
 data_raw <- read_csv("https://www4.stat.ncsu.edu/~online/datasets/EDU01a.csv")
 data_clean <- data_raw |>
   select(Area_name,STCOU,ends_with("D")) |>
@@ -26,11 +25,12 @@ data_clean <- data_raw |>
   pivot_longer(cols = ends_with("D"), 
                names_to = "varcode", 
                values_to = "vals") |>
-  ###I think this code is set up to convert 1900s/2000s data correctly? But let me know if it looks wonky!
-  
-  ## looks good to me! -EN
   mutate(year = ifelse(as.numeric(substr(varcode,8,9))>25,as.numeric(substr(varcode,8,9))+1900,as.numeric(substr(varcode,8,9))+2000),measure=substr(varcode,1,7))
+```
 
+We then split the data into a separate tibble for state-level data and county-level data, filtering out the duplicate values for DC. In the state-level data, we also add a variable indicating each states "division" as designated by the United Stated Census Bureau. This results in the two tibbles output below.
+
+```{r}
 countydata <- data_clean |>
   slice(grep(pattern = ", \\w\\w", area_name))|>
   mutate(state = substr(area_name,nchar(area_name)-1,nchar(area_name)))
@@ -50,8 +50,13 @@ statedata <- data_clean |>
                     ))))))))))      
 
 class(statedata) <- c("state", class(statedata))
+countydata
+statedata
 ```
 
+### Function Processing
+
+Now that we know the basic steps, we convert the process into 3 functions below for ease of reproducability across multiple input data files.
 ```{r}
 function_for_step_1_2 <- function(result, value){
   longer_data <- result |>
@@ -96,8 +101,11 @@ function_for_steps4_5_6 <- function(create_date_columns){
   class(statedata) <- c("state", class(statedata))
   return(list(countydata, statedata))
 }
+```
 
-# wrapper function attempt - should produce same results as above -EN
+We then create a wrapper function to automate the process, so we can now simply add a CSV file name/path, and optionally a specific value we would like if enrollment is no longer the measure of interest, to the function my_wrapper().
+```{r}
+
 my_wrapper <- function(url, value = "enrollment"){
   # assume URL is in quotes
   result <- read_csv(url) |>
@@ -111,19 +119,18 @@ countyData_Final <- result_tibbles[[1]]
 stateData_Final <- result_tibbles[[2]]
 ```
 
+We additionally create a function to combine the processing results from multiple CSV files into one larger tibble.
 ```{r}
-# combine the rows from the 2 given CSV files into separate data frames (for county versus state) within the list "finalCombo"
-
 combine_datasets <- function(results1, results2){
-  ###Removed the "as.data.frame()" parts as I don't think we need them (?) and then they remove the state/county classes when transforming the data that way - TB
   combined_county <- dplyr::bind_rows(results1[[1]],results2[[1]])
   combined_state <- dplyr::bind_rows(results1[[2]],results2[[2]])
   return(list(countyData = combined_county, stateData = combined_state))
 }
-finalCombo <- combine_datasets(results1 = my_wrapper("https://www4.stat.ncsu.edu/~online/datasets/EDU01a.csv"), results2 = my_wrapper("https://www4.stat.ncsu.edu/~online/datasets/EDU01b.csv"))
-class(finalCombo[[2]])
 ```
 
+## Data Summarization
+
+We then turn our attention to a method for automatically summarizing the datasets created from our previous functions, specifically plotting the state-level data as a line chart for average enrollment by year, with different lines for each division, and the county-level data as a line chart for simple enrollment by year across counties, specifying a particular state and considering either the top n number of counties or the bottom n number of counties, where ordering is according to average enrollment across the entire time period.
 ```{r}
 plot.state <- function(df,var_name="enrollment"){
   mean_data <- df |>
@@ -131,23 +138,14 @@ plot.state <- function(df,var_name="enrollment"){
     group_by(division,year) |>
     summarize(var_avg = mean(get(var_name)))
   g <- ggplot(mean_data,aes(x=year,y=var_avg,color=division))
-  g+geom_line()
+  g+geom_line()+labs(y=paste("average",var_name))
 }
-plot.state(finalCombo[[2]])
-
-###I think the assignment was saying to choose any state as a default so I put NC, but let me know If I misunderstood! - TB ###
-
-### ^agreed! - EN ###
 
 plot.county <- function(df,state_choice="NC",top_bottom="top",n_given=5,var_name="enrollment"){
   mean_data <- df |>
     filter(state == state_choice) |>
     group_by(area_name) |>
     summarize(var_avg = mean(get(var_name))) 
-  ###couldn't figure out the ifelse() or if_else() syntax so i used a more traditional if syntax
-  
-  ### i was able to get ifelse() below - EN
-  
     ifelse(tolower(top_bottom)=="top", mean_data <- mean_data |> arrange(desc(var_avg)),
            ifelse(tolower(top_bottom)=="bottom",
               mean_data <- mean_data |>
@@ -158,24 +156,30 @@ plot.county <- function(df,state_choice="NC",top_bottom="top",n_given=5,var_name
   plot_data <- left_join(mean_data,df, by = "area_name")
   ###Prompt seemed a little unclear, but I think for the county data we are supposed to be plotting the actual data values for enrollment per year, with different lines for the top/bottom n specified counties? That should be completed here. - TB
   g <- ggplot(plot_data,aes(x=year,y=get(var_name),color=area_name))
-  g+geom_line()
+  g+geom_line()+labs(y=var_name)
 }
-plot.county(finalCombo[[1]])
 ```
-
 
 # Put it Together
 
+Now that we have developed all of our functions, we can make sure they work correctly and run them in the same location. First, we run the functions to process and create a final combined dataset out for the EDU01a and EDU01b CSV files.
 ```{r}
-plot.state(finalCombo[[2]])
+finalCombo <- combine_datasets(results1 = my_wrapper("https://www4.stat.ncsu.edu/~online/datasets/EDU01a.csv"), results2 = my_wrapper("https://www4.stat.ncsu.edu/~online/datasets/EDU01b.csv"))
+finalCombo
+```
 
-plot.county(finalCombo[[1]],state_choice="NC",top_bottom="top",n_given=20)
-plot.county(finalCombo[[1]],state_choice="SC",top_bottom="bottom",n_given=7)
-plot.county(finalCombo[[1]])
-plot.county(finalCombo[[1]],state_choice="PA",top_bottom="top",n_given=8)
+Next we create our desired visualizations, plotting the state-level data, and including a few separate plots for the county-level data: one for the top 20 counties in NC, one for the bottom counties in SC, one using only defaults, and one with the top 8 counties in PA.
+```{r}
+plot(finalCombo[[2]])
 
-# I believe the default var name for these 4 is also 'enrollment', but not 100% sure -EN
+plot(finalCombo[[1]],state_choice="NC",top_bottom="top",n_given=20)
+plot(finalCombo[[1]],state_choice="SC",top_bottom="bottom",n_given=7)
+plot(finalCombo[[1]])
+plot(finalCombo[[1]],state_choice="PA",top_bottom="top",n_given=8)
+```
 
+Lastly, we repeat this process for four additional datasets, processsing each, combining them together, plotting the state data, plotting the top 15 counties in CA, the top 4 counties in TX, plotting county data only using defaults, and plotting the top 10 counties in NY.
+```{r}
 first_new_URL <- my_wrapper(url="https://www4.stat.ncsu.edu/~online/datasets/PST01a.csv")
 second_new_URL <- my_wrapper(url="https://www4.stat.ncsu.edu/~online/datasets/PST01b.csv")
 third_new_URL <- my_wrapper(url="https://www4.stat.ncsu.edu/~online/datasets/PST01c.csv")
@@ -187,23 +191,10 @@ combine1 <- combine_datasets(results1 = first_new_URL, results2 = second_new_URL
 combine2 <- combine_datasets(results1 = combine1, results2 = third_new_URL)
 
 combine3 <- combine_datasets(results1 = combine2, results2 = fourth_new_URL)
-
-plot.state(combine3[[2]])
-plot.county(combine3[[1]], "CA", "top", 15)
-plot.county(combine3[[1]], "TX", "top", 4)
-plot.county(combine3[[1]])
-plot.county(combine3[[1]], "NY", "top", 10)
-
+combine3
+plot(combine3[[2]])
+plot(combine3[[1]], "CA", "top", 15)
+plot(combine3[[1]], "TX", "top", 4)
+plot(combine3[[1]])
+plot(combine3[[1]], "NY", "top", 10)
 ```
-
-
-
-
-
-
-
-
-
-
-
-
