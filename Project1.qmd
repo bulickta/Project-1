@@ -5,7 +5,11 @@ date: "June 19, 2024"
 format: html
 editor: visual
 ---
-# purpose ?
+
+# Purpose
+
+The goal of this project is to practice developing functions to read in, process, combine, and summarize data in R. To that end, in this project we begin by working with one data to learn how to read in one data set. Then we generalize to develop several functions for reading in data, we develop a wrapper function to automatically execute them all, and we develop a combination function to merge the data from multiple source CSV files, and we develop plotting methods that neatly summarize the data based on whether it is a county-level or state-level data frame.
+
 ## Data Processing
 
 ```{r setup, include=FALSE}
@@ -18,9 +22,10 @@ if (!require("scales")) install.packages("scales")
 if (!require("tidyverse")) install.packages("tidyverse")
 ```
 
-#### Non-Function processing
+#### Processing Steps without a Function
 
-To figure out the steps to processing data, we process the first input outside a function to ensure it is working correctly. Generally speaking, we read in the CSV file, selected the specified columns, pivoted to a longer form, and extracted the relevent value for year from the variable codes.
+To figure out the steps to processing data, we first process the intial input outside of a function to ensure it is working correctly. We start by reading in the CSV file, selecting the specified columns per the prompty, pivoting to a long form, and extracting the relevant value for year from the variable codes.
+
 ```{r}
 data_raw <- read_csv("https://www4.stat.ncsu.edu/~online/datasets/EDU01a.csv")
 data_clean <- data_raw |>
@@ -33,7 +38,7 @@ data_clean <- data_raw |>
   mutate(year = ifelse(as.numeric(substr(varcode,8,9))>25,as.numeric(substr(varcode,8,9))+1900,as.numeric(substr(varcode,8,9))+2000),measure=substr(varcode,1,7))
 ```
 
-We then split the data into a separate tibble for state-level data and county-level data, filtering out the duplicate values for DC. In the state-level data, we also add a variable indicating each states "division" as designated by the United Stated Census Bureau. This results in the two tibbles output below.
+We then split the data into separate tibbles for state-level data and county-level data, filtering out the duplicate entry noted for Washington, DC. In the state-level data, we also add a variable indicating each states "division" as designated by the United Stated Census Bureau. This results can be seen in the two tibbles below.
 
 ```{r}
 countydata <- data_clean |>
@@ -61,9 +66,10 @@ countydata
 statedata
 ```
 
-#### Function Processing
+#### Function Data Processing
 
-Now that we know the basic steps, we convert the process into 3 functions below for ease of reproducability across multiple input data files.
+Now that we know the basic steps, we convert the process into 3 functions below for ease of reproducability across multiple input data files. The first function again selects and transforms columns as needed, the second creates the year variable, and the third separates data into county-level and state-level data frames.
+
 ```{r}
 function_for_step_1_2 <- function(result, value){
   longer_data <- result |>
@@ -110,7 +116,8 @@ function_for_steps4_5_6 <- function(create_date_columns){
 }
 ```
 
-We then create a wrapper function to automate the process, so we can now simply add a CSV file name/path, and optionally a specific value we would like if enrollment is no longer the measure of interest, to the function my_wrapper(). Checking this output data to the data above, we can see our wrapper has reproduced the same data processing steps.
+We then create a wrapper function to automate the process, so we can now simply add a CSV file name/path, and optionally a specific value we would like if enrollment is no longer the measure of interest, to the function and automatically apply the three functions above. Checking this output data to the tibbles above, we can see our wrapper has reproduced the same data processing steps.
+
 ```{r}
 my_wrapper <- function(url, value = "enrollment"){
   # assume URL is in quotes
@@ -127,7 +134,8 @@ countyData_Final
 stateData_Final
 ```
 
-We additionally create a function to combine the processing results from multiple CSV files into one larger tibble.
+Lastly, we create a function to combine the processing results from multiple CSV files into one larger tibble, so that we can merge data together from multiple inputs.
+
 ```{r}
 combine_datasets <- function(results1, results2){
   combined_county <- dplyr::bind_rows(results1[[1]],results2[[1]])
@@ -138,7 +146,8 @@ combine_datasets <- function(results1, results2){
 
 ## Data Summarization
 
-We then turn our attention to a method for automatically summarizing the datasets created from our previous functions, specifically plotting the state-level data as a line chart for average enrollment by year, with different lines for each division, and the county-level data as a line chart for simple enrollment by year across counties, specifying a particular state and considering either the top n number of counties or the bottom n number of counties, where ordering is according to average enrollment across the entire time period.
+We then turn our attention to a method for automatically summarizing the data sets created by our previous functions, specifically plotting the state-level data as a line chart for average enrollment by year, with different lines for each division, and the county-level data as a line chart for simple enrollment by year across counties, specifying a particular state and considering either the top n number of counties or the bottom n number of counties, where ordering is according to average enrollment across the entire time period. Additionally, after a deep rabbit hole with the ggplot and scales libraries, we determined how to create plots that neatly represent the data with well-labeled axes and a well-formatted scale for the Y-axis particularly.
+
 ```{r}
 plot.state <- function(df,var_name="enrollment"){
   mean_data <- df |>
@@ -168,13 +177,15 @@ plot.county <- function(df,state_choice="NC",top_bottom="top",n_given=5,var_name
 
 ## Put it Together
 
-Now that we have developed all of our functions, we can make sure they work correctly and run them in the same location. First, we run the functions to process and create a final combined dataset out for the EDU01a and EDU01b CSV files.
+Now that we have developed all of our functions, we can make sure they work correctly and run on a few different data sets. First, we run the wrapper function and combination function to process and create final combined tibbles for the EDU01a and EDU01b CSV files.
+
 ```{r}
 finalCombo <- combine_datasets(results1 = my_wrapper("https://www4.stat.ncsu.edu/~online/datasets/EDU01a.csv"), results2 = my_wrapper("https://www4.stat.ncsu.edu/~online/datasets/EDU01b.csv"))
 finalCombo
 ```
 
-Next we create our desired visualizations, plotting the state-level data, and including a few separate plots for the county-level data: one for the top 20 counties in NC, one for the bottom counties in SC, one using only defaults, and one with the top 8 counties in PA.
+Next we create our desired visualizations, plotting the state-level data, and including a few separate plots for the county-level data, namely, one showing the top 20 counties in NC, one showing the bottom 7 counties in SC, one using only defaults, and one showing the top 8 counties in PA.
+
 ```{r}
 plot(finalCombo[[2]])
 
@@ -184,7 +195,8 @@ plot(finalCombo[[1]])
 plot(finalCombo[[1]],state_choice="PA",top_bottom="top",n_given=8)
 ```
 
-Lastly, we repeat this process for four additional datasets, processsing each, combining them together, plotting the state data, plotting the top 15 counties in CA, the top 4 counties in TX, plotting county data only using defaults, and plotting the top 10 counties in NY.
+Next, we repeat this process for four additional data sets, processing each, combining them together, plotting the state data, and plotting the county data as the top 15 counties in CA, the top 4 counties in TX, the default county plot, and the top 10 counties in NY.
+
 ```{r}
 first_new_URL <- my_wrapper(url="https://www4.stat.ncsu.edu/~online/datasets/PST01a.csv")
 second_new_URL <- my_wrapper(url="https://www4.stat.ncsu.edu/~online/datasets/PST01b.csv")
