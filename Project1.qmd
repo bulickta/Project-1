@@ -1,10 +1,11 @@
 ---
 title: "ST 558 Project 1"
 author: "Thomas Bulick and Eliza Norman"
+date: "June 19, 2024"
 format: html
 editor: visual
 ---
-
+# purpose ?
 ## Data Processing
 
 ```{r setup, include=FALSE}
@@ -42,6 +43,8 @@ class(countydata) <- c("county", class(countydata))
 
 statedata <- data_clean |>
   slice(grep(pattern = ", \\w\\w", area_name,invert=TRUE)) |>
+  ###Filtering out duplicate DC values###
+  filter(area_name != "District of Columbia") |>
   mutate(division = ifelse(area_name %in% c("CONNECTICUT", "MAINE", "MASSACHUSETTS", "NEW HAMPSHIRE", "RHODE ISLAND", "VERMONT"),"1",
                     ifelse(area_name %in% c("NEW JERSEY","NEW YORK","PENNSYLVANIA"),"2",
                     ifelse(area_name %in% c("ILLINOIS","INDIANA","MICHIGAN","OHIO","WISCONSIN"),"3",
